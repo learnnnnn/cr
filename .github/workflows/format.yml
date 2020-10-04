@@ -1,10 +1,10 @@
 name: format
 
 on:
-  # push:
-  #   branches: [master]
-  schedule:
-    - cron: "0 17,23,3,5,8,12,15 * * *"
+  push:
+    branches: [master]
+  # schedule:
+  #   - cron: "0 17,23,3,5,8,12,15 * * *"
 
 env:
   TZ: Asia/Shanghai
