@@ -35,7 +35,7 @@ jobs:
           mv format target/
           cd target
           sudo chmod a+x format
-          ./format
+          # ./format
           rm format
 
       - name: sync to github
