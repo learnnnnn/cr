@@ -44,15 +44,25 @@ jobs:
           cd target
           git config user.name    "${{ secrets.YOUR_GIT_NAME }}"
           git config user.email   "${{ secrets.YOUR_GIT_EMAIL }}"
-          git add .
-          THIS_GIT_STATUS=$(git status)
-          if [[ "$(echo ${THIS_GIT_STATUS} | grep -o "nothing to commit, working tree clean")" == "nothing to commit, working tree clean" ]]
-          then
-            exit 0
-          fi
+          # git add .
+          # THIS_GIT_STATUS=$(git status)
+          # if [[ "$(echo ${THIS_GIT_STATUS} | grep -o "nothing to commit, working tree clean")" == "nothing to commit, working tree clean" ]]
+          # then
+          #   exit 0
+          # fi
+          # git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
+          # git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
+          git rev-parse --short HEAD >../VERSION
+
+      - name: sync to github 2
+        run: |
+          cd target2
+          git config user.name    "${{ secrets.YOUR_GIT_NAME }}"
+          git config user.email   "${{ secrets.YOUR_GIT_EMAIL }}"
+          mv ../VERSION ./VERSION
+          git add VERSION
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
           git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
-          git rev-parse --short HEAD >../VERSION
 
       - name: sync to gitee
         run: |
@@ -68,14 +78,6 @@ jobs:
           git branch -d master  >/dev/null 2>&1
           git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
 
-      - name: sync to github 2
-        run: |
-          cd target2
-          mv ../VERSION ./VERSION
-          git add VERSION
-          git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
-          git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
-
       - name: sync to gitee 2
         run: |
           cd target2
@@ -89,3 +91,23 @@ jobs:
           git checkout -b pages  >/dev/null 2>&1
           git branch -d master  >/dev/null 2>&1
           git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+
+      - name: refresh
+        run: |
+          sleep 5
+          echo "requesting gitee access token"
+          SECRETS_GITEE_ACCESS_TOKEN=$(curl --silent -X POST --data-urlencode "grant_type=password" --data-urlencode "username=${{ secrets.YOUR_GITEE_NAME }}" --data-urlencode "password=${{ secrets.YOUR_GITEE_PWD }}" --data-urlencode "client_id=${{ secrets.YOUR_GITEE_CLIENT_ID }}" --data-urlencode "client_secret=${{ secrets.YOUR_GITEE_CLIENT_SECRET }}" --data-urlencode "scope=projects" "${{ secrets.PROXY_URL }}https://gitee.com/oauth/token" |  grep -oP '(?<="access_token":")[\da-f]+(?=")')
+          if [ "${SECRETS_GITEE_ACCESS_TOKEN}" = "" ]; then
+              echo "request gitee access token failed"
+
+              exit 1
+          fi
+
+
+          echo "rebuilding gitee pages"
+          rebuild_result=$(curl --silent -X POST --header 'Content-Type: application/json;charset=UTF-8' "${{ secrets.PROXY_URL }}https://gitee.com/api/v5/repos/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}/pages/builds" -d "{\"access_token\":\"${SECRETS_GITEE_ACCESS_TOKEN}\"}")
+          if [ "$(echo "${rebuild_result}"  | grep -oP "(?<=\")queued(?=\")")" != "queued" ]; then
+              echo "rebuild gitee pages failed: ${rebuild_result}"
+
+              exit 1         
+          fi
