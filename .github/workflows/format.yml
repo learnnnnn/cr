@@ -31,6 +31,7 @@ jobs:
         run: |
           rm -rf .git
           git clone -b ${{ secrets.TARGET_BRANCH }} --depth 1 "https://github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}" target >/dev/null 2>&1
+          git clone -b pages --depth 1 "https://github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}" target2 >/dev/null 2>&1
           mv format target/
           cd target
           sudo chmod a+x format
@@ -38,6 +39,7 @@ jobs:
           rm format
 
       - name: sync to github
+        id: sync_to_github
         run: |
           cd target
           git config user.name    "${{ secrets.YOUR_GIT_NAME }}"
@@ -50,6 +52,7 @@ jobs:
           fi
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
           git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
+          git rev-parse --short HEAD >../VERSION
 
       - name: sync to gitee
         run: |
@@ -62,5 +65,27 @@ jobs:
           git add .
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
           git checkout -b feeds  >/dev/null 2>&1
+          git branch -d master  >/dev/null 2>&1
+          git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+
+      - name: sync to github 2
+        run: |
+          cd target2
+          mv ../VERSION ./VERSION
+          git add VERSION
+          git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
+          git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
+
+      - name: sync to gitee 2
+        run: |
+          cd target2
+          rm -rf .git
+          git init
+          git remote add origin "https://gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+          git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
+          git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
+          git add .
+          git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
+          git checkout -b pages  >/dev/null 2>&1
           git branch -d master  >/dev/null 2>&1
           git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
