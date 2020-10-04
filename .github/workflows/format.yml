@@ -1,8 +1,8 @@
 name: format
 
 on:
-  push:
-    branches: [master]
+  # push:
+  #   branches: [master]
   schedule:
     - cron: "0 17,23,3,5,8,12,15 * * *"
 
