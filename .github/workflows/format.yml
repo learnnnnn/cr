@@ -73,6 +73,7 @@ jobs:
           git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
           git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
           git add .
+          git gc
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
           git checkout -b feeds  >/dev/null 2>&1
           git branch -d master  >/dev/null 2>&1
@@ -87,6 +88,7 @@ jobs:
           git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
           git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
           git add .
+          git gc
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
           git checkout -b pages  >/dev/null 2>&1
           git branch -d master  >/dev/null 2>&1
