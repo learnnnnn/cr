@@ -64,32 +64,32 @@ jobs:
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
           git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
 
-      - name: sync to gitee
-        run: |
-          cd target
-          rm -rf .git
-          git init
-          git remote add origin "https://gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
-          git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
-          git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
-          git add .
-          git gc
-          git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
-          git checkout -b feeds  >/dev/null 2>&1
-          git branch -d master  >/dev/null 2>&1
-          git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+#       - name: sync to gitee
+#         run: |
+#           cd target
+#           rm -rf .git
+#           git init
+#           git remote add origin "https://gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+#           git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
+#           git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
+#           git add .
+#           git gc
+#           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
+#           git checkout -b feeds  >/dev/null 2>&1
+#           git branch -d master  >/dev/null 2>&1
+#           git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
 
-      - name: sync to gitee 2
-        run: |
-          cd target2
-          rm -rf .git
-          git init
-          git remote add origin "https://gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
-          git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
-          git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
-          git add .
-          git gc
-          git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
-          git checkout -b pages  >/dev/null 2>&1
-          git branch -d master  >/dev/null 2>&1
-          git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+#       - name: sync to gitee 2
+#         run: |
+#           cd target2
+#           rm -rf .git
+#           git init
+#           git remote add origin "https://gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
+#           git config user.name    "${{ secrets.YOUR_GITEE_NAME }}"
+#           git config user.email   "${{ secrets.YOUR_GITEE_EMAIL }}"
+#           git add .
+#           git gc
+#           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
+#           git checkout -b pages  >/dev/null 2>&1
+#           git branch -d master  >/dev/null 2>&1
+#           git push -f --repo "https://${{ secrets.YOUR_GITEE_NAME }}:${{ secrets.YOUR_GITEE_PWD }}@gitee.com/${{ secrets.YOUR_GITEE_NAME }}/${{ secrets.TARGET_NAME }}.git"  >/dev/null 2>&1
