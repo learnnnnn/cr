@@ -1,5 +1,3 @@
-## ⚠️ Moved to https://github.com/react-boilerplate/react-boilerplate-cra-template
-
 ## This boilerplate is now being developed as a custom `create-react-app` template. Much better and stronger with many more features. Powered by Create React App.
 
 Please support us there with your opinions and pull requests :) And with stars ofc :)
