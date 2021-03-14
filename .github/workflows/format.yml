@@ -29,6 +29,18 @@ jobs:
       - id: set_commit_message
         run: echo ::set-output name=COMMIT_MSG::$(date "+%Y-%m-%d %H:%M:%S")
 
+      - name: ssh
+        run: |
+          sudo sed -i 's/StrictHostKeyChecking/# StrictHostKeyChecking/' /etc/ssh/ssh_config
+          echo "StrictHostKeyChecking no" | sudo tee -a /etc/ssh/ssh_config
+          sudo mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" >id_rsa
+          sudo mv id_rsa ~/.ssh/
+          sudo chmod 600 ~/.ssh/id_rsa
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: do
         run: |
           rm -rf .git
@@ -44,6 +56,8 @@ jobs:
         id: sync_to_github
         run: |
           cd target
+          git remote remove origin
+          git remote add origin git@github.com:${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git
           git config user.name    "${{ secrets.YOUR_GIT_NAME }}"
           git config user.email   "${{ secrets.YOUR_GIT_EMAIL }}"
           git add .
@@ -53,15 +67,17 @@ jobs:
             exit 0
           fi
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
-          git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
+          git push -u origin ${{ secrets.TARGET_BRANCH }} >/dev/null 2>&1
           git rev-parse --short HEAD >../VERSION
 
       - name: sync to github 2
         run: |
           cd target2
+          git remote remove origin
+          git remote add origin git@github.com:${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git
           git config user.name    "${{ secrets.YOUR_GIT_NAME }}"
           git config user.email   "${{ secrets.YOUR_GIT_EMAIL }}"
           mv ../VERSION ./VERSION
           git add VERSION
           git commit -m "${{ steps.set_commit_message.outputs.COMMIT_MSG }}" >/dev/null 2>&1
-          git push --repo "https://${{ secrets.YOUR_GIT_NAME }}:${{ secrets.YOUR_GIT_PWD }}@github.com/${{ secrets.YOUR_GIT_NAME }}/${{ secrets.TARGET_NAME }}.git" >/dev/null 2>&1
+          git push -u origin pages >/dev/null 2>&1
